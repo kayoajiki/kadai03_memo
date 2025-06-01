@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ライフパスナンバー計算</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    select, button { margin-right: 10px; padding: 4px; }
+    #result { margin-top: 20px; font-size: 1.2em; font-weight: bold; }
+    #meaning { margin-top: 10px; font-size: 1em; color: #555; }
+  </style>
+</head>
+<body>
+
+<h2>あなたの生年月日を選んでください</h2>
+
+<select id="year"></select>年
+<select id="month"></select>月
+<select id="date"></select>日
+<button id="calculate">ライフパスナンバーを計算</button>
+
+<div id="result"></div>
+<div id="meaning"></div>
+
+<script>
+  // 年:1900~来年
+  let y = "";
+  const ymd = new Date();
+  const yyyy = ymd.getFullYear() + 1;
+  for(let i = 1900; i <= yyyy; i++){
+    y += `<option value="${i}">${i}</option>`;
+  }
+  $("#year").html(y);
+
+  // 月:1~12
+  let m = "";
+  for(let i = 1; i <= 12; i++){
+    m += `<option value="${i}">${i}</option>`;
+  }
+  $("#month").html(m);
+
+  // 日:1~31
+  let d = "";
+  for(let i = 1; i <= 31; i++){
+    d += `<option value="${i}">${i}</option>`;
+  }
+  $("#date").html(d);
+
+  // 数字の意味一覧
+  const meanings = {
+    1: "【1】リーダータイプ：自立心が強く、先頭を切って道を切り開くタイプ。意思が強く目標達成に向けて努力します。",
+    2: "【2】調和の人：思いやりがあり、人と人をつなぐ協調型。裏方として力を発揮します。",
+    3: "【3】表現者：明るく社交的で、創造性豊かなムードメーカー。芸術的な才能にも恵まれます。",
+    4: "【4】安定志向：堅実で真面目。努力家で信頼される存在。基盤づくりが得意です。",
+    5: "【5】自由な冒険家：好奇心旺盛で変化に強く、刺激的な人生を歩む人。束縛が苦手。",
+    6: "【6】愛と奉仕の人：責任感が強く、家族や周囲への愛が深い。人の世話をよく焼きます。",
+    7: "【7】探求者：知性と精神性に優れ、分析や研究が得意。孤独を恐れず自己探求します。",
+    8: "【8】成功者：ビジネスやお金の運に恵まれ、物質的な豊かさを引き寄せる現実派。",
+    9: "【9】博愛主義者：人道的な使命感が強く、広い愛で多くの人を助ける器の大きい人。",
+    11: "【11】インスピレーター：直感力に優れ、芸術的・スピリチュアルな世界で輝く才能。感受性豊かで理想主義。",
+    22: "【22】マスタービルダー：ビジョンを形にする力を持ち、現実社会で大きな影響力を持つ実践者。",
+    33: "【33】無償の愛：人類愛を体現するような包容力を持ち、癒しや奉仕のエネルギーに満ちた特別な存在。"
+  };
+
+  // ライフパスナンバーの計算関数
+  function calculateLifePathNumber(year, month, day) {
+    const allDigits = (year + month + day).split('').map(Number);
+    let sum = allDigits.reduce((acc, cur) => acc + cur, 0);
+    while (![11, 22, 33].includes(sum) && sum > 9) {
+      sum = sum.toString().split('').map(Number).reduce((acc, cur) => acc + cur, 0);
+    }
+    return sum;
+  }
+
+  // 計算ボタンクリックイベント
+  $("#calculate").on("click", function() {
+    const year = $("#year").val();
+    const month = $("#month").val();
+    const day = $("#date").val();
+
+    const lifePath = calculateLifePathNumber(year, month, day);
+    $("#result").html(`あなたのライフパスナンバーは <span style="color: #007acc;">${lifePath}</span> です。`);
+
+    // 意味を表示
+    const meaning = meanings[lifePath];
+    $("#meaning").html(meaning ? meaning : "※ 解説は準備中です。");
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ライフパスナンバー計算＆保存</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, select, button { margin: 5px; padding: 5px; }
+    table { margin-top: 20px; border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    #meaning { margin-top: 10px; font-size: 0.9em; color: #555; }
+    .deleteBtn { color: red; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h2>ライフパスナンバー計算</h2>
+
+<input type="text" id="username" placeholder="お名前を入力">
+<br>
+<select id="year"></select>年
+<select id="month"></select>月
+<select id="date"></select>日
+<button id="calculate">計算＆保存</button>
+<button id="clearAll">全データ削除</button>
+
+<div id="result"></div>
+<div id="meaning"></div>
+
+<h3>保存データ一覧</h3>
+<table id="list">
+  <tr><th>名前</th><th>生年月日</th><th>ナンバー</th><th>解説</th><th>削除</th></tr>
+</table>
+
+<script>
+  // 年月日セレクト
+  const now = new Date();
+  const nextYear = now.getFullYear() + 1;
+
+  for(let i = 1900; i <= nextYear; i++) {
+    $('#year').append(`<option value="${i}">${i}</option>`);
+  }
+  for(let i = 1; i <= 12; i++) {
+    $('#month').append(`<option value="${i}">${i}</option>`);
+  }
+  for(let i = 1; i <= 31; i++) {
+    $('#date').append(`<option value="${i}">${i}</option>`);
+  }
+
+  // 解説
+  const meanings = {
+    1: "【1】自立心が強く、先頭を切って道を切り開くタイプ。",
+    2: "【2】思いやりがあり、人と人をつなぐ協調型。",
+    3: "【3】明るく社交的で創造性豊か。",
+    4: "【4】堅実で努力家。信頼される安定タイプ。",
+    5: "【5】好奇心旺盛で自由を愛する冒険家。",
+    6: "【6】責任感が強く愛情深い世話焼きタイプ。",
+    7: "【7】分析・探求が得意。精神性が高い。",
+    8: "【8】ビジネスやお金の運に強い実力派。",
+    9: "【9】広い愛で人を助ける博愛主義者。",
+    11: "【11】直感・芸術性に優れる理想主義者。",
+    22: "【22】ビジョンを現実に変える建設者。",
+    33: "【33】無償の愛と癒しを与える奉仕者。"
+  };
+
+  function calculateLifePathNumber(year, month, day) {
+    const digits = (year + month + day).split('').map(Number);
+    let sum = digits.reduce((a, b) => a + b, 0);
+    while (![11, 22, 33].includes(sum) && sum > 9) {
+      sum = sum.toString().split('').map(Number).reduce((a, b) => a + b, 0);
+    }
+    return sum;
+  }
+
+  function displayList() {
+    $("#list tr:gt(0)").remove(); // ヘッダー以外削除
+    for(let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const data = JSON.parse(localStorage.getItem(key));
+      const row = `
+        <tr>
+          <td>${data.name}</td>
+          <td>${data.birth}</td>
+          <td>${data.number}</td>
+          <td>${meanings[data.number] || "不明"}</td>
+          <td><span class="deleteBtn" data-key="${key}">削除</span></td>
+        </tr>`;
+      $("#list").append(row);
+    }
+  }
+
+  $(document).on("click", ".deleteBtn", function() {
+    const key = $(this).data("key");
+    localStorage.removeItem(key);
+    displayList();
+  });
+
+  $("#calculate").on("click", function() {
+    const name = $("#username").val().trim();
+    const y = $("#year").val();
+    const m = $("#month").val();
+    const d = $("#date").val();
+    if (!name) {
+      alert("名前を入力してください");
+      return;
+    }
+
+    const num = calculateLifePathNumber(y, m, d);
+    const birth = `${y}年${m}月${d}日`;
+    const explanation = meanings[num] || "準備中";
+
+    $("#result").html(`ライフパスナンバーは <strong>${num}</strong> です。`);
+    $("#meaning").html(explanation);
+
+    const obj = {
+      name: name,
+      birth: birth,
+      number: num
+    };
+    localStorage.setItem(name, JSON.stringify(obj)); // 上書き可
+    displayList();
+  });
+
+  $("#clearAll").on("click", function() {
+    if (confirm("全データを削除しますか？")) {
+      localStorage.clear();
+      displayList();
+    }
+  });
+
+  // 初期表示
+  displayList();
+</script>
+
+</body>
+</html>
+
+
+
+</script>
+<footer><small>G's</small></footer>
+</body>
+</html>
