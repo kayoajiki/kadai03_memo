@@ -8,7 +8,7 @@
   
 ③アプリのデプロイURL
 
-デプロイしている場合はURLを記入（任意）
+(https://kayoajiki.github.io/kadai03_memo/js02/kadai/su-hi2.html)
 
 ④工夫した点・こだわった点
 
